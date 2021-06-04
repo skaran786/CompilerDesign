@@ -23,6 +23,9 @@ public class Compiler {
     /**
      * @param args the command line arguments
      */
+
+    
+    
     
     //Specifying tokens
     
@@ -30,10 +33,10 @@ public class Compiler {
     final static Pattern LETTERS = Pattern.compile(LETTER+"+");
     final static Pattern DIGIT = Pattern.compile("[0-9]");
     final static Pattern DIGITS = Pattern.compile("[1-9]"+DIGIT+"*");
-    final static String OPENPAR = "(";
-    final static String CLOSEPAR = ")";
-    final static String CURLYOPEN = "{";
-    final static String CURLYCLOSE = "}";
+//    final static String OPENPAR = "(";
+//    final static String CLOSEPAR = ")";
+//    final static String CURLYOPEN = "{";
+//    final static String CURLYCLOSE = "}";
     final static String EQUAL_OP = "=";
     final static String PLUS_OP = "+";
     final static String END = ";";
@@ -49,7 +52,7 @@ public class Compiler {
     
     
     static boolean otherTerminal(String source, int prev, int next){
-        moveTokenPointer(source, prev, next);
+        moveTokenPointer(source, prev, next);//=
 //        print("tokenpointer : "+token_pointer);
         switch(token_pointer){
             
@@ -64,8 +67,8 @@ public class Compiler {
                 //incrementPointers();
                 return true;    
                                 
-            case PLUS_OP:
-                return true;
+//            case PLUS_OP:
+//                return true;
             
                 
         
@@ -107,6 +110,7 @@ public class Compiler {
         token_pointer = (String) source.subSequence(prev, next);
         
     }
+   
     
     static boolean find_DataTypeToken(String source, int prev, int next){
         //initialize token_pointer
@@ -116,9 +120,14 @@ public class Compiler {
             boolean Match=false;    
             token.append(token_pointer);
                 while(!Match){
+                    //prev = 0, next = 1
+                    //2nd prev = 1, next = 2
                     prev=next;
                     next++;
-                    moveTokenPointer(source, prev, next);                
+                    // prev = 1, next = 2
+                    //2nd prev = 2, next = 3
+                    moveTokenPointer(source, prev, next);
+                    
                     token.append(token_pointer);
                     if(token.toString().equals(TYPE_INT)){
                         prev_pointer = prev;
@@ -133,13 +142,15 @@ public class Compiler {
     
     static boolean find_VariableToken(String source, int prev, int next){
 
-        moveTokenPointer(source, prev, next);
-        if(LETTERS.matcher(token_pointer).matches()){
+//        moveTokenPointer(source, prev, next);
+        if(VARIABLE.matcher(token_pointer).matches()){
             boolean Match = false;
             token.append(token_pointer);            
             while(!Match){
+                //prev = 6, next = 7
                 prev=next;
                 next++;
+                //prev = 7, next = 8
                 moveTokenPointer(source, prev, next);          
                 if(WHITESPACE.matcher(token_pointer).matches()
                         || token_pointer.equals(EQUAL_OP)){                    
@@ -163,28 +174,43 @@ public class Compiler {
                 
         moveTokenPointer(source, prev, next);
         if(token_pointer.equals("0")){
-            token_pointer = (String) source.subSequence(prev, next);
-            token.append(token_pointer);    
-//            System.out.println("Match Found "+token);
+            //this only happens when we have 0, rest are handled by the else if case
+            token.append(token_pointer);
+            prev=next;
+            next++;
+            
+            //but we should check if next thing is a digit than that will error
+            moveTokenPointer(source, prev, next);
+            if(DIGITS.matcher(token_pointer).matches()){
+                return false;
+            }else{
+                prev_pointer = prev;
+                next_pointer = next;
+            }
+            
+            
             return true;
-            //Error cases not added
         }
         else if(DIGITS.matcher(token_pointer).matches()){
             boolean Match = false;
             token.append(token_pointer);
+            //prev = 10, next = 11
             prev=next;
             next++;
+            //prev = 11, next = 12
             moveTokenPointer(source, prev, next);    
             while(!Match){
                 moveTokenPointer(source, prev, next); 
                 if(DIGIT.matcher(token_pointer).matches()){
 //                    System.out.println("Match Found DIGITS " + token);
                     token.append(token_pointer);
+                    //prev = 11, next = 12
                     prev=next;
                     next++;
+                    //prev = 12, next = 13
                 }
                 else{
-                    //must be letter so we reach at end case
+                    //must anything but not a digit so we reach at end case
                     Match = true;
                 }
             }
@@ -204,12 +230,14 @@ public class Compiler {
 //            print("arrived"+token_pointer);
             boolean Match = false;
             while(!Match){
+                //prev = 7, next = 8
                 prev=next;
                 next++;
+                //prev = 8, next = 9
                 moveTokenPointer(source, prev, next);
                 if(
                    LETTERS.matcher(token_pointer).matches() || 
-                   DIGITS.matcher(token_pointer).matches()  || 
+                   DIGIT.matcher(token_pointer).matches()  || 
                    DIGITS.matcher(token_pointer).matches()  ||
                    token_pointer.equals(EQUAL_OP) ||
                    token_pointer.equals(END) 
@@ -481,6 +509,11 @@ public class Compiler {
 //        String source ="int var = 42;     ";
 //        String source ="int var = 42 ;";
 
+//        String source ="int var = 0;";
+
+//        Error case         
+//        String source ="int var = 0;";
+
 //       StringBuilder token_Ex = new StringBuilder();
 //       
 //       String x = source.subSequence(0, 1).toString();
@@ -497,6 +530,8 @@ public class Compiler {
 //       print(token_Ex.toString());
        
        
+
+
 
         
 //            
